@@ -3,7 +3,9 @@
 #include <string.h>
 #include <pthread.h>
 #include <semaphore.h>
-#define CHUNK_SIZE 32
+#include <unistd.h>
+#define READ_CHUNK_SIZE 16
+#define WRITE_CHUNK_SIZE 32
 void process_data(char *buffer, int bufferSizeInBytes);
 int get_external_data(char *buffer, int bufferSizeInBytes);
 
@@ -12,7 +14,7 @@ sem_t ReaderLock;
 sem_t WriterLock;
 
 unsigned int countReader = 0;
-char data[] = "0123456789abcdefghijklmnopqrstuvwxyxABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyxABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnoDEFGHIJKLMNOPQRSTUVWXYZ";
+char data[] = "0123456789abcdefghijIJKLMNOPQRSTUVWXYZ";
 /*********************************************************
 **********************************************************
 ***********   DO NOT MODIFY THIS SAMPLE CODE   ***********
@@ -75,31 +77,26 @@ void process_data(char *buffer, int bufferSizeInBytes)
 void *reader_thread(void *arg) {
         //TODO: Define set-up required
 while(1){
-//sleep(1);
-        sem_wait (&ReaderWriterLock);           // Lock on the basis of Arrival (to maintain order)
+        sem_wait (&ReaderWriterLock);                   // Lock on the basis of Arrival (to maintain order)
         sem_wait (&ReaderLock);                         // Exclusive lock for all Readers
 
         if(countReader == 0)
                 sem_wait (&WriterLock);                 // If first reader arrives, lock the Writer so that no other Writer can enter the Reader area
-        countReader++;                                          // Increment the readers
-        sem_post(&ReaderWriterLock);            // Release the first lock, only Reader lock remians now
+        countReader++;                                  // Increment the readers
+        sem_post(&ReaderWriterLock);                    // Release the first lock, only Reader lock remians now
         sem_post(&ReaderLock);                          // Release the reader lock, Writer lock is STILL enabled so that only readers can access the buffer.
 
         // Implement code here
         int *reader_threadID = (int*)arg;
-        printf("Reader thread [%d] is executing \n", *reader_threadID);
-        //while(1)
-        //{
-                process_data(data, CHUNK_SIZE);
-        //}
-
+        printf("Reader thread [%d] is executing , Total Readers: %d\n", *reader_threadID, countReader);
+                process_data(data, READ_CHUNK_SIZE);
         sem_wait (&ReaderLock);                         // Lock the Reader so that Reader Count can be maintained.
                 countReader--;
 
         if(countReader == 0)
                 sem_post(&WriterLock);                  // If no reader left , then release the Writer lock so that Writer can access the buffer now.
-        sem_post(&ReaderLock);
-}                               // Release the reader lock, Reading task completed!
+        sem_post(&ReaderLock);                          // Release the reader lock, Reading task completed!
+}                        
         return NULL;
 }
 
@@ -111,18 +108,20 @@ while(1){
  */
 void *writer_thread(void *arg) {
 while(1){
-//sleep(1);
-        sem_wait (&ReaderWriterLock);           //Lock on the basis of Arrival (to maintain order)
+        sem_wait (&ReaderWriterLock);                   //Lock on the basis of Arrival (to maintain order)
         sem_wait (&WriterLock);                         // Exclusive access to writer (one writer at time only!). For Example, W-1 has access now
-        sem_post(&ReaderWriterLock);            // Release the first lock, W-1 hold the lock now.
+        sem_post(&ReaderWriterLock);                    // Release the first lock, W-1 hold the lock now.
 
         int *writer_threadID = (int*)arg;
-        printf("Writer thread [%d] is executing \n", *writer_threadID);
-
-        get_external_data(data, CHUNK_SIZE);
-
-        sem_wait (&WriterLock);
-}                               // W-1 Releases the lock for other Readers or Writers
+        printf("Writer thread [%d] is executing , Total Readers : %d \n", *writer_threadID, countReader);
+        get_external_data(data, WRITE_CHUNK_SIZE);
+        printf("Appended Data is \n");
+        int i;
+        for( i =0; data[i] != '\0';i++)
+                printf("%c", data[i]);
+        printf("\n");
+        sem_post (&WriterLock);                         // W-1 Releases the lock for other Readers or Writers
+       }                        
         return NULL;
 }
 
