@@ -14,7 +14,7 @@ sem_t ReaderWriterLock;
 sem_t ReaderLock;
 sem_t WriterLock;
 
-char data[1000] = "123456789999";
+char data[1000] = "123456789876543210";
 /*********************************************************
 **********************************************************
 ***********   DO NOT MODIFY THIS SAMPLE CODE   ***********
@@ -48,7 +48,7 @@ void process_data(char *buffer, int bufferSizeInBytes)
 
     if(buffer[0] != "0")
     {
-                printf("Data Read by Reader is : ", pthread_self());
+                printf("Data Read by Reader is : ");
                 for(i=0; i<bufferSizeInBytes; i++)
                 {
                         printf("%c", buffer[i]);
