@@ -1,1 +1,1 @@
-{serviceaccount=1, CSVFileLoc=C:\out.csv, sourceFileName=gs://abcd/xyz.json, git=www.google.con, sourceFileLayout=lyout1, project=poject121, sourceBucket=gs://jasminder121/, dataset=dataset123, sourceProject=project, table=tablename1, partitionColoumn=1}
+{serviceaccount=a, CSVFileLoc=C:\out.csv, sourceFileName=gs://abc/xyz.csv, git=www.acb.com, sourceFileLayout=1, project=pks123, sourceBucket=gs://abcd/, dataset=ds1adf, sourceProject=prokjec123, table=tble123, partitionColoumn=1}
