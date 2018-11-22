@@ -1,0 +1,1 @@
+{serviceaccount=1, CSVFileLoc=C:\out.csv, sourceFileName=gs://abc/xcy.json, git=http://github.com, sourceFileLayout=abcd, project=jasminder, sourceBucket=gs://jasminder121/, dataset=jasminder, sourceProject=project, table=tabl121, partitionColoumn=1}
